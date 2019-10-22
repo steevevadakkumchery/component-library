@@ -225,16 +225,27 @@ const CreditCard = styled.div`
 
   transition: transform 400ms linear;
   transition-delay: ${props => (props.show ? "400ms" : "0")};
-  transform: ${props => (props.show ? "rotateY(0deg)" : "rotateY(90deg)")};
+
+  transform-style: preserve-3d;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url(${creditCardBackground});
 
   background-size: cover;
 `;
 
-const CreditCardFront = styled(CreditCard)``;
+const CreditCardFront = styled(CreditCard)`
+  transform: ${props =>
+    props.show
+      ? "perspective(1000px) rotateY(0deg)"
+      : "perspective(1000px) rotateY(90deg)"};
+`;
 
-const CreditCardBack = styled(CreditCard)``;
+const CreditCardBack = styled(CreditCard)`
+  transform: ${props =>
+    props.show
+      ? "perspective(1000px) rotateY(0deg)"
+      : "perspective(1000px) rotateY(-90deg)"};
+`;
 
 const CreditCardNumberContainer = styled.div`
   display: flex;
