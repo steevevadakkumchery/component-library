@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import creditCardBackground from "./assets/credit-card-background.png";
+import cardChip from "./assets/card-chip.png";
 import _ from "lodash";
 
 const Card = styled.div`
@@ -12,7 +13,7 @@ const Card = styled.div`
   margin: 10em;
   box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   height: auto;
-  padding: 9em 2em 2em;
+  padding: 13em 2em 2em;
   border-radius: 0.5em;
   background-color: #fff;
 `;
@@ -102,8 +103,8 @@ const CreditCardForm = () => {
   return (
     <Card>
       <CreditCardViewer
-        cardNumber={cardNumber}
-        cardName={cardName}
+        cardNumber={cardNumber.split(" ").join("")}
+        cardName={cardName.trim()}
         cardExpMonth={cardExpMonth}
         cardExpYear={cardExpYear}
         cardCVVCode={cardCVVCode}
@@ -114,14 +115,16 @@ const CreditCardForm = () => {
         <Input
           id="card-number"
           onChange={e => {
-            let tempCardNumber = e.currentTarget.value;
-            tempCardNumber = tempCardNumber.split(" ").join("");
-            if (tempCardNumber.length > 0) {
-              tempCardNumber = tempCardNumber
-                .match(new RegExp(".{1,4}", "g"))
-                .join(" ");
+            let newCardNumber = e.currentTarget.value.split(" ").join("");
+
+            if (!newCardNumber.match(new RegExp(/\D/))) {
+              if (newCardNumber.length > 0) {
+                newCardNumber = newCardNumber
+                  .match(new RegExp(".{1,4}", "g"))
+                  .join(" ");
+              }
+              setCardNumber(newCardNumber);
             }
-            setCardNumber(tempCardNumber);
           }}
           placeholder="1234 5678 9012 3456"
           value={cardNumber}
@@ -134,9 +137,15 @@ const CreditCardForm = () => {
         <Label htmlFor="card-name">Card Name</Label>
         <Input
           id="card-name"
-          placeholder="S G Vadakkumchery"
-          onChange={e => setCardName(e.currentTarget.value)}
+          placeholder="Card holder name"
+          onChange={e => {
+            const cardName = e.currentTarget.value;
+            if (cardName.match(new RegExp(/^([^0-9]*)$/))) {
+              setCardName(cardName.toUpperCase());
+            }
+          }}
           value={cardName}
+          maxLength={29}
           onFocus={() => {
             setFront(true);
           }}
@@ -194,11 +203,16 @@ const CreditCardForm = () => {
             <Input
               id="card-cvv-code"
               value={cardCVVCode}
-              onChange={e => setCardCVVCode(e.currentTarget.value)}
+              onChange={e => {
+                let cvv = e.currentTarget.value;
+                if (!cvv.match(new RegExp(/\D/))) {
+                  setCardCVVCode(cvv);
+                }
+              }}
               onFocus={() => {
                 setFront(false);
               }}
-              maxLength={3}
+              maxLength={4}
             />
           </CVVSection>
         </HorizontalAlign>
@@ -219,8 +233,9 @@ const CreditCard = styled.div`
   width: 22em;
   border-radius: 0.5em;
   box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  font-size: 1em;
+  font-size: 1.2rem;
   font-weight: bold;
+  font-family: "Share Tech Mono", monospace;
   color: #fff;
 
   transition: transform 400ms linear;
@@ -245,47 +260,83 @@ const CreditCardBack = styled(CreditCard)`
     props.show
       ? "perspective(1000px) rotateY(0deg)"
       : "perspective(1000px) rotateY(-90deg)"};
+
+  align-items: flex-start;
 `;
 
 const CreditCardNumberContainer = styled.div`
   display: flex;
-  align-items: center;
-  position: absolute;
-  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+
+  height: 23em;
   width: 100%;
+`;
+
+const CardChipImg = styled.img`
+  height: 2.5em;
+  margin-left: 2em;
+  margin-top: 2em;
+`;
+
+const CreditCardNumber = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  font-size: 1.5em;
+
+  width: 100%;
+  height: 2em;
 `;
 
 const CreditCardNameAndExpiryContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
   align-items: flex-end;
   height: 100%;
   width: 20em;
-  margin: 0.5em;
-`;
-
-const CreditCardNumber = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  margin: 2em;
-  width: 100%;
-  height: 2em;
+  margin: 1em 0.5em;
 `;
 
 const CreditCardName = styled.div`
-  position: relative;
-  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  width: 100%;
 `;
 
 const CreditCardExpiry = styled.div``;
 
 const CreditCardCVV = styled.div`
-  position: absolute;
-  bottom: 1em;
-  right: 1em;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+
+  background-color: white;
+  margin-top: 1em;
+  padding: 0.5em;
+  height: 1em;
+  width: 17em;
+  color: #000;
+`;
+
+const CardLabel = styled.div`
+  display: flex;
+  font-family: "Arial";
+  font-size: 0.7rem;
+  margin-bottom: 0.1em;
+`;
+
+const CardStrip = styled.div`
+  background-color: #000;
+  width: 100%;
+  height: 2.5em;
+  margin-top: 1.5em;
 `;
 
 const CreditCardViewer = ({
@@ -300,14 +351,23 @@ const CreditCardViewer = ({
     <>
       <CreditCardFront show={front}>
         <CreditCardNumberContainer>
+          <CardChipImg src={cardChip} />
           <CreditCardNumber>
-            {_.padEnd([cardNumber], [19], ["#"])}
+            {_.padEnd([cardNumber.slice(0, 4)], [4], ["#"])}{" "}
+            {_.padEnd([cardNumber.slice(4, 8)], [4], ["#"])}{" "}
+            {_.padEnd([cardNumber.slice(8, 12)], [4], ["#"])}{" "}
+            {_.padEnd([cardNumber.slice(12, 16)], [4], ["#"])}
           </CreditCardNumber>
         </CreditCardNumberContainer>
 
         <CreditCardNameAndExpiryContainer>
-          <CreditCardName>{cardName ? cardName : "##########"}</CreditCardName>
+          <CreditCardName>
+            <CardLabel>Card Holder</CardLabel>
+            {cardName ? cardName : "FULL NAME"}
+          </CreditCardName>
           <CreditCardExpiry>
+            <CardLabel>Expiry</CardLabel>
+
             {_.padEnd([cardExpMonth], [2], ["#"])}
             {"/"}
             {_.padEnd([cardExpYear], [4], ["#"])}
@@ -315,6 +375,7 @@ const CreditCardViewer = ({
         </CreditCardNameAndExpiryContainer>
       </CreditCardFront>
       <CreditCardBack show={!front}>
+        <CardStrip />
         <CreditCardCVV>{_.padEnd([cardCVVCode], [3], ["#"])}</CreditCardCVV>
       </CreditCardBack>
     </>
