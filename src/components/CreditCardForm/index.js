@@ -1,7 +1,11 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import _ from "lodash";
-import CreditCardViewer from "./CreditCardViewer";
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import _ from 'lodash';
+import CreditCardViewer from '../CreditCardViewer';
+
+const CARD_NUMBER_MAX_LENGTH = 19;
+const CARD_NAME_MAX_LENGTH = 29;
+const CCV_MAX_LENGTH = 4;
 
 const Card = styled.div`
   display: flex;
@@ -92,17 +96,17 @@ const SubmitButton = styled.button`
 `;
 
 const CreditCardForm = () => {
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [cardExpMonth, setCardExpMonth] = useState("");
-  const [cardExpYear, setCardExpYear] = useState("");
-  const [cardCVVCode, setCardCVVCode] = useState("");
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [cardExpMonth, setCardExpMonth] = useState('');
+  const [cardExpYear, setCardExpYear] = useState('');
+  const [cardCVVCode, setCardCVVCode] = useState('');
   const [front, setFront] = useState(true);
 
   return (
-    <Card>
+    <Card data-testid="main-card">
       <CreditCardViewer
-        cardNumber={cardNumber.split(" ").join("")}
+        cardNumber={cardNumber.split(' ').join('')}
         cardName={cardName.trim()}
         cardExpMonth={cardExpMonth}
         cardExpYear={cardExpYear}
@@ -113,21 +117,23 @@ const CreditCardForm = () => {
         <Label htmlFor="card-number">Card Number </Label>
         <Input
           id="card-number"
+          data-testid="card-number-input"
           onChange={e => {
-            let newCardNumber = e.currentTarget.value.split(" ").join("");
+            let newCardNumber = e.currentTarget.value.split(' ').join('');
 
-            if (!newCardNumber.match(new RegExp(/\D/))) {
+            if (Number.isInteger(+newCardNumber)) {
               if (newCardNumber.length > 0) {
                 newCardNumber = newCardNumber
-                  .match(new RegExp(".{1,4}", "g"))
-                  .join(" ");
+                  .match(new RegExp('.{1,4}', 'g'))
+                  .join(' ')
+                  .slice(0, CARD_NUMBER_MAX_LENGTH);
               }
               setCardNumber(newCardNumber);
             }
           }}
           placeholder="1234 5678 9012 3456"
           value={cardNumber}
-          maxLength={19}
+          maxLength={CARD_NUMBER_MAX_LENGTH}
           onFocus={() => {
             setFront(true);
           }}
@@ -136,15 +142,18 @@ const CreditCardForm = () => {
         <Label htmlFor="card-name">Card Name</Label>
         <Input
           id="card-name"
+          data-testid="card-name-input"
           placeholder="Card holder name"
           onChange={e => {
-            const cardName = e.currentTarget.value;
-            if (cardName.match(new RegExp(/^([^0-9]*)$/))) {
-              setCardName(cardName.toUpperCase());
+            const cardNameInputValue = e.currentTarget.value;
+            if (cardNameInputValue.match(new RegExp(/^([^0-9]*)$/))) {
+              setCardName(
+                cardNameInputValue.toUpperCase().slice(0, CARD_NAME_MAX_LENGTH)
+              );
             }
           }}
           value={cardName}
-          maxLength={29}
+          maxLength={CARD_NAME_MAX_LENGTH}
           onFocus={() => {
             setFront(true);
           }}
@@ -156,15 +165,19 @@ const CreditCardForm = () => {
             <InputGroup>
               <SelectInput
                 id="card-expiration-month"
+                data-testid="card-month-input"
                 value={cardExpMonth}
                 onChange={e => {
-                  setCardExpMonth(e.currentTarget.value);
+                  const cardMonthInputValue = e.currentTarget.value;
+                  if (cardMonthInputValue.match(new RegExp(/^([0-9]{2})$/))) {
+                    setCardExpMonth(cardMonthInputValue);
+                  }
                 }}
                 onFocus={() => {
                   setFront(true);
                 }}
               >
-                <option>Month</option>
+                <option value="00">Month</option>
                 {Array(12)
                   .fill(null)
                   .map((value, index) => (
@@ -178,9 +191,13 @@ const CreditCardForm = () => {
               </SelectInput>
               <SelectInput
                 id="card-expiration-year"
+                data-testid="card-year-input"
                 value={cardExpYear}
                 onChange={e => {
-                  setCardExpYear(e.currentTarget.value);
+                  const cardYearInputValue = e.currentTarget.value;
+                  if (cardYearInputValue.match(new RegExp(/^([0-9]{4})$/))) {
+                    setCardExpYear(cardYearInputValue);
+                  }
                 }}
                 onFocus={() => {
                   setFront(true);
@@ -201,17 +218,18 @@ const CreditCardForm = () => {
             <Label htmlFor="card-cvv-code">CVV</Label>
             <Input
               id="card-cvv-code"
+              data-testid="card-cvv-input"
               value={cardCVVCode}
               onChange={e => {
                 let cvv = e.currentTarget.value;
-                if (!cvv.match(new RegExp(/\D/))) {
-                  setCardCVVCode(cvv);
+                if (Number.isInteger(+cvv)) {
+                  setCardCVVCode(cvv.slice(0, CCV_MAX_LENGTH));
                 }
               }}
               onFocus={() => {
                 setFront(false);
               }}
-              maxLength={4}
+              maxLength={CCV_MAX_LENGTH}
             />
           </CVVSection>
         </HorizontalAlign>

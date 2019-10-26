@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-import creditCardBackground from "./assets/credit-card-background.png";
-import cardChip from "./assets/card-chip.png";
-import _ from "lodash";
+import React from 'react';
+import styled from 'styled-components';
+import creditCardBackground from '../../assets/credit-card-background.png';
+import cardChip from '../../assets/card-chip.png';
+import _ from 'lodash';
 
 const CreditCard = styled.div`
   display: flex;
@@ -17,11 +17,11 @@ const CreditCard = styled.div`
   box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   font-size: 1.2rem;
   font-weight: bold;
-  font-family: "Share Tech Mono", monospace;
+  font-family: 'Share Tech Mono', monospace;
   color: #fff;
 
   transition: transform 400ms linear;
-  transition-delay: ${props => (props.show ? "400ms" : "0")};
+  transition-delay: ${props => (props.show ? '400ms' : '0')};
 
   transform-style: preserve-3d;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
@@ -33,15 +33,15 @@ const CreditCard = styled.div`
 const CreditCardFront = styled(CreditCard)`
   transform: ${props =>
     props.show
-      ? "perspective(1000px) rotateY(0deg)"
-      : "perspective(1000px) rotateY(90deg)"};
+      ? 'perspective(1000px) rotateY(0deg)'
+      : 'perspective(1000px) rotateY(90deg)'};
 `;
 
 const CreditCardBack = styled(CreditCard)`
   transform: ${props =>
     props.show
-      ? "perspective(1000px) rotateY(0deg)"
-      : "perspective(1000px) rotateY(-90deg)"};
+      ? 'perspective(1000px) rotateY(0deg)'
+      : 'perspective(1000px) rotateY(-90deg)'};
 
   align-items: flex-start;
 `;
@@ -109,7 +109,7 @@ const CreditCardCVV = styled.div`
 
 const CardLabel = styled.div`
   display: flex;
-  font-family: "Arial";
+  font-family: 'Arial';
   font-size: 0.7rem;
   margin-bottom: 0.1em;
 `;
@@ -122,43 +122,44 @@ const CardStrip = styled.div`
 `;
 
 const CreditCardViewer = ({
-  cardNumber,
-  cardName,
-  cardExpMonth,
-  cardExpYear,
-  cardCVVCode,
-  front
+  cardNumber = '',
+  cardName = '',
+  cardExpMonth = '',
+  cardExpYear = '',
+  cardCVVCode = '',
+  front = true,
 }) => {
   return (
     <>
-      <CreditCardFront show={front}>
+      <CreditCardFront data-testid="card-front" show={front}>
         <CreditCardNumberContainer>
           <CardChipImg src={cardChip} />
-          <CreditCardNumber>
-            {_.padEnd([cardNumber.slice(0, 4)], [4], ["#"])}{" "}
-            {_.padEnd([cardNumber.slice(4, 8)], [4], ["#"])}{" "}
-            {_.padEnd([cardNumber.slice(8, 12)], [4], ["#"])}{" "}
-            {_.padEnd([cardNumber.slice(12, 16)], [4], ["#"])}
+          <CreditCardNumber data-testid="card-viewer-number">
+            {_.padEnd([cardNumber.slice(0, 4)], [4], ['#'])}{' '}
+            {_.padEnd([cardNumber.slice(4, 8)], [4], ['#'])}{' '}
+            {_.padEnd([cardNumber.slice(8, 12)], [4], ['#'])}{' '}
+            {_.padEnd([cardNumber.slice(12, 16)], [4], ['#'])}
           </CreditCardNumber>
         </CreditCardNumberContainer>
 
         <CreditCardNameAndExpiryContainer>
-          <CreditCardName>
+          <CreditCardName data-testid="card-viewer-name">
             <CardLabel>Card Holder</CardLabel>
-            {cardName ? cardName : "FULL NAME"}
+            {cardName ? cardName : 'FULL NAME'}
           </CreditCardName>
-          <CreditCardExpiry>
+          <CreditCardExpiry data-testid="card-viewer-expiry">
             <CardLabel>Expiry</CardLabel>
-
-            {_.padEnd([cardExpMonth], [2], ["#"])}
-            {"/"}
-            {_.padEnd([cardExpYear], [4], ["#"])}
+            {_.padEnd([cardExpMonth], [2], ['#'])}
+            {'/'}
+            {_.padEnd([cardExpYear], [4], ['#'])}
           </CreditCardExpiry>
         </CreditCardNameAndExpiryContainer>
       </CreditCardFront>
-      <CreditCardBack show={!front}>
+      <CreditCardBack data-testid="card-back" show={!front}>
         <CardStrip />
-        <CreditCardCVV>{_.padEnd([cardCVVCode], [3], ["#"])}</CreditCardCVV>
+        <CreditCardCVV data-testid="card-viewer-cvv">
+          {_.padEnd([cardCVVCode], [3], ['#'])}
+        </CreditCardCVV>
       </CreditCardBack>
     </>
   );
